@@ -1,38 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"go/ast"
-	"go/parser"
-	"go/printer"
-	"go/token"
 	"log"
-	"os"
+
+	"go/parser"
 )
 
 func main() {
-	fset := token.NewFileSet()
-	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+	expr, err := parser.ParseExpr("1+1")
 
-	ast.Inspect(f, func(n ast.Node) bool {
-		if v, ok := n.(*ast.FuncDecl); ok {
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
 
-			v.Name = &ast.Ident{
-				Name: "plus",
-			}
-		}
+	ast.Inspect(expr, func(n ast.Node) bool {
+		fmt.Printf("%[1]T %[1]v\n", n)
 		return true
 	})
-
-	file, err := os.OpenFile("example/resutl.go", os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	pp := &printer.Config{
-		Mode:     printer.UseSpaces | printer.TabIndent,
-		Tabwidth: 8,
-		Indent:   0,
-	}
-	pp.Fprint(file, fset, f)
 }

@@ -333,7 +333,48 @@ func plus(n, m int) {
 }
 ```
 
+## [astutil\.Applyで抽象構文木を置き換える \#golang \- Qiita](https://qiita.com/tenntenn/items/40c563d6155e9ce19896)
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"log"
+
+	"go/parser"
+)
+
+func main() {
+	expr, err := parser.ParseExpr("1+1")
+
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	ast.Inspect(expr, func(n ast.Node) bool {
+		fmt.Printf("%[1]T %[1]v\n", n)
+		return true
+	})
+}
+```
+
+結果
+
+```
+*ast.BinaryExpr &{0xc000080060 2 + 0xc000080080}
+*ast.BasicLit &{1 INT 1}
+<nil> <nil>
+*ast.BasicLit &{3 INT 1}
+<nil> <nil>
+<nil> <nil>
+```
+
+
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
 * [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)
 * [goパッケージで簡単に静的解析して世界を広げよう \#golang \- Qiita](https://qiita.com/tenntenn/items/868704380455c5090d4b)
+* [astutil\.Applyで抽象構文木を置き換える \#golang \- Qiita](https://qiita.com/tenntenn/items/40c563d6155e9ce19896)
+* [Goにおける静的解析のモジュール化について \- Mercari Engineering Blog](https://tech.mercari.com/entry/2018/12/16/150000)
