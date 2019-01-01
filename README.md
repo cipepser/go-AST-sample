@@ -50,6 +50,192 @@ func ParseExpr(x string) (ast.Expr, error) {
 }
 ```
 
+## ファイルからAST
+
+以下の方法で`example.go`からASTが得られる。
+
+```go
+func main() {
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+
+	for _, d := range f.Decls {
+		ast.Print(fset, d)
+	}
+}
+```
+
+`example.go`は以下。
+
+```go
+package example
+
+import "log"
+
+func add(n, m int) {
+	log.Println(n + m)
+}
+```
+
+
+結果
+
+```sh
+❯ go run main.go
+     0  *ast.GenDecl {
+     1  .  TokPos: ./example/example.go:3:1
+     2  .  Tok: import
+     3  .  Lparen: -
+     4  .  Specs: []ast.Spec (len = 1) {
+     5  .  .  0: *ast.ImportSpec {
+     6  .  .  .  Path: *ast.BasicLit {
+     7  .  .  .  .  ValuePos: ./example/example.go:3:8
+     8  .  .  .  .  Kind: STRING
+     9  .  .  .  .  Value: "\"log\""
+    10  .  .  .  }
+    11  .  .  .  EndPos: -
+    12  .  .  }
+    13  .  }
+    14  .  Rparen: -
+    15  }
+     0  *ast.FuncDecl {
+     1  .  Name: *ast.Ident {
+     2  .  .  NamePos: ./example/example.go:5:6
+     3  .  .  Name: "add"
+     4  .  .  Obj: *ast.Object {
+     5  .  .  .  Kind: func
+     6  .  .  .  Name: "add"
+     7  .  .  .  Decl: *(obj @ 0)
+     8  .  .  }
+     9  .  }
+    10  .  Type: *ast.FuncType {
+    11  .  .  Func: ./example/example.go:5:1
+    12  .  .  Params: *ast.FieldList {
+    13  .  .  .  Opening: ./example/example.go:5:9
+    14  .  .  .  List: []*ast.Field (len = 1) {
+    15  .  .  .  .  0: *ast.Field {
+    16  .  .  .  .  .  Names: []*ast.Ident (len = 2) {
+    17  .  .  .  .  .  .  0: *ast.Ident {
+    18  .  .  .  .  .  .  .  NamePos: ./example/example.go:5:10
+    19  .  .  .  .  .  .  .  Name: "n"
+    20  .  .  .  .  .  .  .  Obj: *ast.Object {
+    21  .  .  .  .  .  .  .  .  Kind: var
+    22  .  .  .  .  .  .  .  .  Name: "n"
+    23  .  .  .  .  .  .  .  .  Decl: *(obj @ 15)
+    24  .  .  .  .  .  .  .  }
+    25  .  .  .  .  .  .  }
+    26  .  .  .  .  .  .  1: *ast.Ident {
+    27  .  .  .  .  .  .  .  NamePos: ./example/example.go:5:13
+    28  .  .  .  .  .  .  .  Name: "m"
+    29  .  .  .  .  .  .  .  Obj: *ast.Object {
+    30  .  .  .  .  .  .  .  .  Kind: var
+    31  .  .  .  .  .  .  .  .  Name: "m"
+    32  .  .  .  .  .  .  .  .  Decl: *(obj @ 15)
+    33  .  .  .  .  .  .  .  }
+    34  .  .  .  .  .  .  }
+    35  .  .  .  .  .  }
+    36  .  .  .  .  .  Type: *ast.Ident {
+    37  .  .  .  .  .  .  NamePos: ./example/example.go:5:15
+    38  .  .  .  .  .  .  Name: "int"
+    39  .  .  .  .  .  }
+    40  .  .  .  .  }
+    41  .  .  .  }
+    42  .  .  .  Closing: ./example/example.go:5:18
+    43  .  .  }
+    44  .  }
+    45  .  Body: *ast.BlockStmt {
+    46  .  .  Lbrace: ./example/example.go:5:20
+    47  .  .  List: []ast.Stmt (len = 1) {
+    48  .  .  .  0: *ast.ExprStmt {
+    49  .  .  .  .  X: *ast.CallExpr {
+    50  .  .  .  .  .  Fun: *ast.SelectorExpr {
+    51  .  .  .  .  .  .  X: *ast.Ident {
+    52  .  .  .  .  .  .  .  NamePos: ./example/example.go:6:2
+    53  .  .  .  .  .  .  .  Name: "log"
+    54  .  .  .  .  .  .  }
+    55  .  .  .  .  .  .  Sel: *ast.Ident {
+    56  .  .  .  .  .  .  .  NamePos: ./example/example.go:6:6
+    57  .  .  .  .  .  .  .  Name: "Println"
+    58  .  .  .  .  .  .  }
+    59  .  .  .  .  .  }
+    60  .  .  .  .  .  Lparen: ./example/example.go:6:13
+    61  .  .  .  .  .  Args: []ast.Expr (len = 1) {
+    62  .  .  .  .  .  .  0: *ast.BinaryExpr {
+    63  .  .  .  .  .  .  .  X: *ast.Ident {
+    64  .  .  .  .  .  .  .  .  NamePos: ./example/example.go:6:14
+    65  .  .  .  .  .  .  .  .  Name: "n"
+    66  .  .  .  .  .  .  .  .  Obj: *(obj @ 20)
+    67  .  .  .  .  .  .  .  }
+    68  .  .  .  .  .  .  .  OpPos: ./example/example.go:6:16
+    69  .  .  .  .  .  .  .  Op: +
+    70  .  .  .  .  .  .  .  Y: *ast.Ident {
+    71  .  .  .  .  .  .  .  .  NamePos: ./example/example.go:6:18
+    72  .  .  .  .  .  .  .  .  Name: "m"
+    73  .  .  .  .  .  .  .  .  Obj: *(obj @ 29)
+    74  .  .  .  .  .  .  .  }
+    75  .  .  .  .  .  .  }
+    76  .  .  .  .  .  }
+    77  .  .  .  .  .  Ellipsis: -
+    78  .  .  .  .  .  Rparen: ./example/example.go:6:19
+    79  .  .  .  .  }
+    80  .  .  .  }
+    81  .  .  }
+    82  .  .  Rbrace: ./example/example.go:7:1
+    83  .  }
+    84  }
+```
+
+`f.Decls`のところは、`Imports`や`Comments`などもある。
+
+## ASTのトラバース
+
+```go
+func main() {
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+
+	ast.Inspect(f, func(n ast.Node) bool {
+		if v, ok := n.(*ast.FuncDecl); ok {
+			fmt.Println(v.Name)
+		}
+		return true
+	})
+}
+```
+
+結果
+
+```sh
+❯ go run main.go
+add
+```
+
+もう少し突っ込んでソースコードで`add`の位置を取得してみる。
+
+```go
+func main() {
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+
+	ast.Inspect(f, func(n ast.Node) bool {
+		if v, ok := n.(*ast.FuncDecl); ok {
+			fmt.Println("Name:", v.Name)
+			fmt.Println("Pos:", v.Pos())
+			fmt.Println(fset.Position(v.Pos()))
+		}
+		return true
+	})
+}
+```
+
+結果
+
+```sh
+❯ go run main.go
+Name: add
+Pos: 32
+./example/example.go:5:1
+```
 
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
