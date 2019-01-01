@@ -237,5 +237,102 @@ Pos: 32
 ./example/example.go:5:1
 ```
 
+## ASTの書き換え
+
+```go
+func main() {
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+
+	ast.Inspect(f, func(n ast.Node) bool {
+		if v, ok := n.(*ast.FuncDecl); ok {
+			
+			v.Name = &ast.Ident{
+				Name: "plus",
+			}
+		}
+		return true
+	})
+
+	for _, d := range f.Decls {
+		ast.Print(fset, d)
+	}
+}
+```
+
+これで`add`を`plus`に書き換えられる。
+ただし、差分がASTの`Name`だけが書き換わったわけではない。
+具体的には以下の通り。
+
+```sh
+     0  *ast.FuncDecl {
+     1  .  Name: *ast.Ident {
+     2  .  .  NamePos: ./example/example.go:5:6
+     3  .  .  Name: "add"
+     4  .  .  Obj: *ast.Object {
+     5  .  .  .  Kind: func
+     6  .  .  .  Name: "add"
+     7  .  .  .  Decl: *(obj @ 0)
+     8  .  .  }
+     9  .  }
+```
+
+だったところが以下のようになる。（他にも実は微妙に差分がある）
+
+```sh
+     0  *ast.FuncDecl {
+     1  .  Name: *ast.Ident {
+     2  .  .  NamePos: -
+     3  .  .  Name: "plus"
+     4  .  }
+```
+
+TODO: [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)を使うと書き換えられるらしい？
+
+```go
+func main() {
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "./example/example.go", nil, parser.Mode(0))
+
+	ast.Inspect(f, func(n ast.Node) bool {
+		if v, ok := n.(*ast.FuncDecl); ok {
+
+			v.Name = &ast.Ident{
+				Name: "plus",
+			}
+		}
+		return true
+	})
+
+	file, err := os.OpenFile("example/resutl.go", os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	pp := &printer.Config{
+		Mode:     printer.UseSpaces | printer.TabIndent,
+		Tabwidth: 8,
+		Indent:   0,
+	}
+	pp.Fprint(file, fset, f)
+}
+```
+
+結果(`resutl.go`)
+
+```go
+package example
+
+import "log"
+
+func plus(n, m int) {
+	log.Println(n + m)
+}
+```
+
+
+
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
+* [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)
