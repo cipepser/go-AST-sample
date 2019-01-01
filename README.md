@@ -1,6 +1,8 @@
 # go-AST-sample
 
-## 文字列として受け取ってASTを表示する
+##  [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
+
+### 文字列として受け取ってASTを表示する
 
 ```go
 package main
@@ -50,7 +52,7 @@ func ParseExpr(x string) (ast.Expr, error) {
 }
 ```
 
-## ファイルからAST
+### ファイルからAST
 
 以下の方法で`example.go`からASTが得られる。
 
@@ -187,7 +189,7 @@ func add(n, m int) {
 
 `f.Decls`のところは、`Imports`や`Comments`などもある。
 
-## ASTのトラバース
+### ASTのトラバース
 
 ```go
 func main() {
@@ -237,7 +239,7 @@ Pos: 32
 ./example/example.go:5:1
 ```
 
-## ASTの書き換え
+### ASTの書き換え
 
 ```go
 func main() {
@@ -331,8 +333,7 @@ func plus(n, m int) {
 }
 ```
 
-
-
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
 * [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)
+* [goパッケージで簡単に静的解析して世界を広げよう \#golang \- Qiita](https://qiita.com/tenntenn/items/868704380455c5090d4b)
