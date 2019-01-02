@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"log"
 	"os"
+	"sync"
 
 	"golang.org/x/tools/go/ast/astutil"
 )
@@ -17,9 +18,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var once sync.Once
 	n := astutil.Apply(expr, func(cr *astutil.Cursor) bool {
 		if cr.Name() == "Args" && cr.Index() == 0 {
-			cr.Delete()
+			once.Do(cr.Delete)
 		}
 		return true
 	}, nil)

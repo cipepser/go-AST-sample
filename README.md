@@ -482,6 +482,18 @@ func(x, y int) {
 
 > ここで注意したいのは、変更は直ちに行われるという点です。
 
+`cr.Delete()`を`once.Do(cr.Delete)`に書き換えると一度だけ実行される。
+※ `var once sync.Once`も必要
+
+こんなところでも`sync.Once`使えるのね。
+
+結果
+
+```go
+func(x, y int) {
+}(20)
+```
+
 
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
