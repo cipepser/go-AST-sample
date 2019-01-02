@@ -494,6 +494,44 @@ func(x, y int) {
 }(20)
 ```
 
+## 引数を追加する
+
+`InsertBefore`や`InsertAfter`で実現する。
+
+```go
+func main() {
+	expr, err := parser.ParseExpr(`func(x, y int){}(10, 20)`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	n := astutil.Apply(expr, func(cr *astutil.Cursor) bool {
+		if cr.Name() == "Args" && cr.Index() == 0 {
+			cr.InsertBefore(&ast.BasicLit{
+				Kind:  token.STRING,
+				Value: "hi",
+			})
+			cr.InsertAfter(&ast.BasicLit{
+				Kind:  token.STRING,
+				Value: "gopher",
+			})
+		}
+		return true
+	}, nil)
+
+	if err := format.Node(os.Stdout, token.NewFileSet(), n); err != nil {
+		log.Fatalln("Error:", err)
+	}
+	fmt.Println()
+}
+```
+
+```go
+func(x, y int) {
+}(hi, 10, gopher, 20)
+```
+
+
 
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
