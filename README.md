@@ -372,6 +372,38 @@ func main() {
 ```
 
 
+## `astutil.Apply`の使い方
+
+シグネチャは`func Apply(root ast.Node, pre, post ApplyFunc) (result ast.Node) `である。
+子ノードを処理する前後で実行したい関数を書く。`pre`だけでよければ次にようになる。
+
+
+```go
+func main() {
+	expr, err := parser.ParseExpr(`func(x, y int){}(10, 20)`)
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	n := astutil.Apply(expr, func(cr *astutil.Cursor) bool {
+		if cr.Name() == "Args" {
+			fmt.Println(cr.Name(), cr.Index())
+		}
+		return true
+	}, nil)
+
+	_ = n
+}
+```
+
+結果
+
+```
+Args 0
+Args 1
+```
+
+
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
 * [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)
