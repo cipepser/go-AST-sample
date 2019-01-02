@@ -403,6 +403,85 @@ Args 0
 Args 1
 ```
 
+## ASTの書き換え
+
+```go
+func main() {
+	expr, err := parser.ParseExpr(`x+y`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	n := astutil.Apply(expr, func(cr *astutil.Cursor) bool {
+		switch cr.Name() {
+		case "X":
+			cr.Replace(&ast.BasicLit{
+				Kind:  token.INT,
+				Value: "10",
+			})
+		case "Y":
+			cr.Replace(&ast.BasicLit{
+				Kind:  token.INT,
+				Value: "20",
+			})
+		}
+		return true
+	}, nil)
+
+	if err := format.Node(os.Stdout, token.NewFileSet(), n); err != nil {
+		log.Fatalln("Error:", err)
+	}
+	fmt.Println()
+}
+```
+
+結果
+
+```
+10 + 20
+```
+
+## ASTからノードを削除する
+
+```go
+func main() {
+	expr, err := parser.ParseExpr(`func(x, y int){}(10, 20)`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	n := astutil.Apply(expr, func(cr *astutil.Cursor) bool {
+		if cr.Name() == "Args" && cr.Index() == 0 {
+			cr.Delete()
+		}
+		return true
+	}, nil)
+
+	if err := format.Node(os.Stdout, token.NewFileSet(), n); err != nil {
+		log.Fatalln("Error:", err)
+	}
+	fmt.Println()
+}
+```
+
+結果
+
+```go
+func(x, y int) {
+}()
+```
+参考までに`cr.Delete()`をコメントアウトすると以下のようになる。（当然）
+
+```go
+func(x, y int) {
+}(10, 20)
+```
+
+あれ？ `cr.Index() == 0`だから`10`だけが消えて欲しかったのでは？
+元記事にも以下のように書いてある。
+
+> ここで注意したいのは、変更は直ちに行われるという点です。
+
 
 ## References
 * [Go言語の golang/go パッケージで初めての構文解析](https://qiita.com/po3rin/items/a19d96d29284108ad442)
