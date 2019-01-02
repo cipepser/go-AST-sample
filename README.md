@@ -289,7 +289,8 @@ func main() {
      4  .  }
 ```
 
-TODO: [astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)を使うと書き換えられるらしい？
+[astutil \- GoDoc](https://godoc.org/golang.org/x/tools/go/ast/astutil)を使うと書き換えられるらしい？  
+⇛ `astutil.Apply`で試した。（後述）
 
 ```go
 func main() {
